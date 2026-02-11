@@ -10,3 +10,17 @@ and visualize telemetry data from multiple sensors.
 - Modular and class-based design
 
 ## Project Structure
+
+
+flowchart LR
+ subgraph SensorProcessor["SensorProcessor"]
+        A1["fetch_token"]
+        A2["date_to_timestamp"]
+        A3["fetch_device_id"]
+        A4["fetch_all_telemetry"]
+        A5["process_sensors_visualize"]
+        A6["visualize_telemetry"]
+  end
+    User["User"] --> SensorProcessor
+    SensorProcessor --> Logger["Logger"] & Matplotlib["Matplotlib"]
+    fetch_all_telemetry["fetch_all_telemetry"] --> MockAPI[("Mock Raw Data")]
