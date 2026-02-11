@@ -1,3 +1,7 @@
+import matplotlib.pyplot as plt
+from datetime import datetime
+
+
 class SensorProcessor:
 
     def __init__(self, url):
@@ -18,19 +22,18 @@ class SensorProcessor:
         print(f"[fetch_all_telemetry] mac={mac_id}, device={device_id}")
         print(f"start={start_ts}, end={end_ts}")
 
-        # MOCK RAW DATA
         return {
             "temperature": [
                 {"ts": 1710000000000, "value": 25},
                 {"ts": 1710000100000, "value": 26}
             ]
         }
+
     def fetch_telemetry(self, mac_id, keyword, start_ts, end_ts):
         device_id = self.fetch_device_id(mac_id)
         raw_data = self.fetch_all_telemetry(mac_id, device_id, start_ts, end_ts)
 
         if not isinstance(raw_data, dict):
-            print("Invalid raw data received.")
             return []
 
         formatted_list = []
@@ -44,15 +47,37 @@ class SensorProcessor:
 
         return formatted_list
 
+    # GRAPH EXPORT
     def visualize_telemetry(self, title, data):
-        print(f"[visualize_telemetry] title = {title}")
-        print("Processed Data:", data)
+
+        if not data:
+            print("No data available to visualize.")
+            return
+
+        timestamps = []
+        values = []
+
+        for entry in data:
+            ts = entry["ts"] / 1000  # convert ms to seconds
+            dt = datetime.fromtimestamp(ts)
+            timestamps.append(dt)
+            values.append(entry["value"])
+
+        plt.figure()
+        plt.plot(timestamps, values)
+        plt.title(title)
+        plt.xlabel("Time")
+        plt.ylabel("Value")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
+        filename = "telemetry_output.png"
+        plt.savefig(filename)
+        plt.close()
+
+        print(f"Graph exported as {filename}")
 
     def process_sensors_visualize(self, keyword, start_date, end_date, title, mac_list):
-
-        print("=== process_sensors_visualize started ===")
-        print("keyword:", keyword)
-        print("mac_list:", mac_list)
 
         self.fetch_token()
 
@@ -62,34 +87,12 @@ class SensorProcessor:
         all_results = []
 
         for mac_id in mac_list:
-            device_id = self.fetch_device_id(mac_id)
-            raw_data = self.fetch_all_telemetry(
-                mac_id,
-                device_id,
-                start_ts,
-                end_ts
-            )
+            telemetry_data = self.fetch_telemetry(mac_id, keyword, start_ts, end_ts)
+            all_results.extend(telemetry_data)
 
-        #     if not isinstance(raw_data, dict):
-        #         print("Invalid raw data received.")
-        #         continue
-
-        #     for entry in raw_data.get(keyword, []):
-        #         formatted = {
-        #             "ts": entry["ts"],
-        #             "value": entry["value"],
-        #             # "mac_id": mac_id,
-        #             # "device_id": device_id,
-        #             # "start_ts": start_ts,
-        #             # "end_ts": end_ts
-        #         }
-        #         all_results.append(formatted)
-
-        # # Visualization should happen once after processing all devices
-        # self.visualize_telemetry(title, all_results)
+        self.visualize_telemetry(title, all_results)
 
 
-# Create object
 processor = SensorProcessor(url="https://api.test.com")
 
 if __name__ == "__main__":
