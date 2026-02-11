@@ -12,15 +12,23 @@ and visualize telemetry data from multiple sensors.
 ## Project Structure
 
 
-flowchart LR
- subgraph SensorProcessor["SensorProcessor"]
-        A1["fetch_token"]
-        A2["date_to_timestamp"]
-        A3["fetch_device_id"]
-        A4["fetch_all_telemetry"]
-        A5["process_sensors_visualize"]
-        A6["visualize_telemetry"]
-  end
-    User["User"] --> SensorProcessor
-    SensorProcessor --> Logger["Logger"] & Matplotlib["Matplotlib"]
-    fetch_all_telemetry["fetch_all_telemetry"] --> MockAPI[("Mock Raw Data")]
+## 🔁 Process Flow
+
+```mermaid
+flowchart TD
+    A[Start Application] --> B[process_sensors_visualize()]
+    B --> C[fetch_token()]
+    C --> D[date_to_timestamp(start_date)]
+    D --> E[date_to_timestamp(end_date)]
+    E --> F{Loop MAC List}
+    F -->|For each MAC| G[fetch_device_id(mac)]
+    G --> H[fetch_all_telemetry()]
+    H --> I{Raw Data Valid?}
+    I -->|Yes| J[Filter by keyword]
+    J --> K[Format Data]
+    K --> L[Append to all_results]
+    L --> F
+    I -->|No| F
+    F --> M[visualize_telemetry()]
+    M --> N[Export telemetry_output.png]
+```
