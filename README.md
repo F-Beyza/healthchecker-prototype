@@ -14,6 +14,8 @@ and visualize telemetry data from multiple sensors.
 
 ## 🔁 Process Flow
 
+
+
 ```mermaid
 flowchart TD
     A[Start Application] --> B[process_sensors_visualize()]
