@@ -25,6 +25,24 @@ class SensorProcessor:
                 {"ts": 1710000100000, "value": 26}
             ]
         }
+    def fetch_telemetry(self, mac_id, keyword, start_ts, end_ts):
+        device_id = self.fetch_device_id(mac_id)
+        raw_data = self.fetch_all_telemetry(mac_id, device_id, start_ts, end_ts)
+
+        if not isinstance(raw_data, dict):
+            print("Invalid raw data received.")
+            return []
+
+        formatted_list = []
+
+        for entry in raw_data.get(keyword, []):
+            formatted = {
+                "ts": entry.get("ts"),
+                "value": entry.get("value")
+            }
+            formatted_list.append(formatted)
+
+        return formatted_list
 
     def visualize_telemetry(self, title, data):
         print(f"[visualize_telemetry] title = {title}")
@@ -44,9 +62,7 @@ class SensorProcessor:
         all_results = []
 
         for mac_id in mac_list:
-
             device_id = self.fetch_device_id(mac_id)
-
             raw_data = self.fetch_all_telemetry(
                 mac_id,
                 device_id,
@@ -54,23 +70,23 @@ class SensorProcessor:
                 end_ts
             )
 
-            if not isinstance(raw_data, dict):
-                print("Invalid raw data received.")
-                continue
+        #     if not isinstance(raw_data, dict):
+        #         print("Invalid raw data received.")
+        #         continue
 
-            for entry in raw_data.get(keyword, []):
-                formatted = {
-                    "ts": entry["ts"],
-                    "value": entry["value"],
-                    # "mac_id": mac_id,
-                    # "device_id": device_id,
-                    # "start_ts": start_ts,
-                    # "end_ts": end_ts
-                }
-                all_results.append(formatted)
+        #     for entry in raw_data.get(keyword, []):
+        #         formatted = {
+        #             "ts": entry["ts"],
+        #             "value": entry["value"],
+        #             # "mac_id": mac_id,
+        #             # "device_id": device_id,
+        #             # "start_ts": start_ts,
+        #             # "end_ts": end_ts
+        #         }
+        #         all_results.append(formatted)
 
-        # Visualization should happen once after processing all devices
-        self.visualize_telemetry(title, all_results)
+        # # Visualization should happen once after processing all devices
+        # self.visualize_telemetry(title, all_results)
 
 
 # Create object
