@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 from datetime import datetime
+from logger_config import setup_logger
+import secrets
+import string
 
+logger = setup_logger(__name__)
 
 class SensorProcessor:
 
@@ -8,19 +12,24 @@ class SensorProcessor:
         self.url = url
 
     def fetch_token(self):
-        print(f"[fetch_token] url = {self.url}")
+        alphabet = string.ascii_letters + string.digits
+        token = ''.join(secrets.choice(alphabet) for _ in range(32))
+
+        logger.info(f"[fetch_token] Generated token for {self.url}")
+        logger.debug(f"Token value: {token}")
+        return token
 
     def date_to_timestamp(self, date_str):
-        print(f"[date_to_timestamp] date = {date_str}")
+        logger.info(f"[date_to_timestamp] Converting date to timestamp: {date_str}")
         return 123456789
 
     def fetch_device_id(self, mac_id):
-        print(f"[fetch_device_id] mac = {mac_id}, url = {self.url}")
+        logger.info(f"[fetch_device_id] Fetching device ID for MAC: {mac_id}")
         return "dummy_device_id"
 
     def fetch_all_telemetry(self, mac_id, device_id, start_ts, end_ts):
-        print(f"[fetch_all_telemetry] mac={mac_id}, device={device_id}")
-        print(f"start={start_ts}, end={end_ts}")
+        logger.info(f"Fetching all telemetry for MAC: {mac_id}, Device: {device_id}")
+        logger.info(f"Start Timestamp: {start_ts}, End Timestamp: {end_ts}")
 
         return {
             "temperature": [
@@ -51,7 +60,7 @@ class SensorProcessor:
     def visualize_telemetry(self, title, data):
 
         if not data:
-            print("No data available to visualize.")
+            logger.warning("No telemetry data to visualize")
             return
 
         timestamps = []
@@ -75,11 +84,11 @@ class SensorProcessor:
         plt.savefig(filename)
         plt.close()
 
-        print(f"Graph exported as {filename}")
+        logger.info(f"Telemetry visualization saved as {filename}")
 
     def process_sensors_visualize(self, keyword, start_date, end_date, title, mac_list):
 
-        self.fetch_token()
+        token = self.fetch_token()
 
         start_ts = self.date_to_timestamp(start_date)
         end_ts = self.date_to_timestamp(end_date)
