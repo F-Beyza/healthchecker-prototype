@@ -124,8 +124,8 @@ class SensorProcessor:
         plt.figure(figsize=(10, 6))
         plt.plot(timestamps, values, marker='o', linestyle='-', color='blue', label=title)
         plt.title(title)
-        plt.xlabel("Time")
-        plt.ylabel("Value")
+        plt.xlabel("Date")
+        plt.ylabel("%CO2")
         plt.legend()
         plt.grid(True)
         
