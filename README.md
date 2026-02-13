@@ -18,19 +18,57 @@ and visualize telemetry data from multiple sensors.
 
 ```mermaid
 flowchart TD
-    A[Start Application] --> B[process_sensors_visualize()]
-    B --> C[fetch_token()]
-    C --> D[date_to_timestamp(start_date)]
-    D --> E[date_to_timestamp(end_date)]
-    E --> F{Loop MAC List}
-    F -->|For each MAC| G[fetch_device_id(mac)]
-    G --> H[fetch_all_telemetry()]
-    H --> I{Raw Data Valid?}
-    I -->|Yes| J[Filter by keyword]
-    J --> K[Format Data]
-    K --> L[Append to all_results]
-    L --> F
-    I -->|No| F
-    F --> M[visualize_telemetry()]
-    M --> N[Export telemetry_output.png]
+    A[Program Start] --> B[Get script directory]
+    B --> C[Build CSV file path]
+    C --> D[Create SensorProcessor instance]
+
+    D --> E[Call process_sensors_visualize]
+
+    E --> F[Convert start_date to timestamp]
+    E --> G[Convert end_date to timestamp]
+
+    F --> H{Are timestamps valid?}
+    G --> H
+
+    H -- No --> Z1[Exit process]
+    H -- Yes --> I[Call fetch_telemetry]
+
+    I --> J{Does CSV file exist?}
+    J -- No --> Z2[Return None and empty list]
+    J -- Yes --> K[Open CSV file]
+
+    K --> L[Iterate through rows]
+    L --> M{Row valid format?}
+    M -- No --> L
+    M -- Yes --> N{Sensor type matches keyword?}
+    N -- No --> L
+    N -- Yes --> O[Parse timestamp and value]
+
+    O --> P{Within date range?}
+    P -- No --> L
+    P -- Yes --> Q[Append to formatted_list]
+
+    Q --> L
+    L --> R[Sort formatted_list]
+
+    R --> S[Return mac_id and telemetry_data]
+
+    S --> T{Is telemetry_data empty?}
+    T -- Yes --> Z3[Skip visualization]
+    T -- No --> U[Build final title with MAC]
+
+    U --> V[Call visualize_telemetry]
+
+    V --> W{Is data empty?}
+    W -- Yes --> Z4[Exit visualize]
+    W -- No --> X[Convert timestamps to datetime]
+
+    X --> Y[Plot graph using matplotlib]
+    Y --> AA[Create graphs folder if needed]
+    AA --> AB[Generate filename]
+    AB --> AC[Save PNG file]
+    AC --> AD[Close plot]
+
+    AD --> AE[Process End]
+
 ```
